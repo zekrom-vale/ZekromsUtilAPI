@@ -16,7 +16,7 @@ function Zutil.swap2(array)
 	return {array[2],array[1]}
 end
 
-function Zutil.inTable(array,v)
+function Zutil.inTable(array,v)--Checks if a value exists in the array
 	for _,value in pairs(array)do
 		if value==v then
 			return true
@@ -24,7 +24,7 @@ function Zutil.inTable(array,v)
 	return false
 end
 
-function Zutil.inTableDeep(array,v)
+function Zutil.inTableDeep(array,v)--Checks if a value exists in the array
 	for _,value in pairs(array)do
 		if type(value)=="table" then
 			if Zutil.inTableDeep(value,v) then	return true	end
@@ -35,7 +35,7 @@ function Zutil.inTableDeep(array,v)
 	return false
 end
 
-function Zutil.printVars()
+function Zutil.printVars()--Prints all global vars
 	local i,v=nextvar(nil)
 	local arr={}
 	while i do
@@ -45,35 +45,19 @@ function Zutil.printVars()
 	sb.logInfo(sb.printJson(arr))
 end
 
-function Zutil.selfParam(strParam,default)
-	if self[strParam]==nil then
-		self[strParam]=config.getParameter(strParam,default)
-		return false
-	end
-	return true
-end
-
-function Zutil.storageParam(strParam,default)
-	if storage[strParam]==nil then
-		storage[strParam]=config.getParameter(strParam,default)
-		return false
-	end
-	return true
-end
-
 function Zutil.params(...)--Returns the values of parameters in the config file as an unpacked table
---If using a table as a parameter, {path,default}
+--If using a table as a parameter: {path,default}
 	local arr={}
 	for _,v in ipairs(arg)do
 		if type(v)=="table" then
-			table.insert(arr,config.getParameter(unpack(v)))
+			table.insert(arr,config.getParameter(table.unpack(v)))
 		else
 			table.insert(arr,config.getParameter(v))
 		end
 	end
-	return unpack(arr)
+	return table.unpack(arr)
 end
---a,b.c,d.e.f=Zutil.params({"a",false},"b.c",{"d.e.f",12})
+--a,b.c,d.e.f,self.time=Zutil.params({"a",false},"b.c",{"d.e.f",12},"time")
 
 function Zutil.animator.stopSounds(...)
 	for _,v in ipairs(arg)do
@@ -81,10 +65,10 @@ function Zutil.animator.stopSounds(...)
 	end
 end
 
-function Zutil.loopFunction(fn,...)
+function Zutil.loopFunction(fn,...)--Loops fn() for all args if type(arg[n])=="table" then it unpacks the table as args
 	for _,v in ipairs(arg)do
 		if type(v)=="table" then
-			fn(unpack(v))
+			fn(table.unpack(v))
 		else
 			fn(v)
 		end

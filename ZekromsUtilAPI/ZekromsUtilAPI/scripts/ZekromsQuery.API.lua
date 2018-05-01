@@ -11,18 +11,37 @@ function Zquery.closestTarget(range,param,poz)
 	return util.find(ID,function(ID)	return entity.isValidTarget(ID)	end)or 0
 end
 
-function Zquery.where(poz)
-	poz=poz or entity.position()
-	return world.underground(poz),world.inSurfaceLayer(poz),world.oceanLevel(poz)>=poz[2]
+function Zquery.where(...)--Returns an unpacked table of {underground,inSurfaceLayer,underWater} for every position
+	local arr={}
+	if arg==nil then
+		arg={entity.position()}
+	end
+	for _,v in ipairs(arg)do
+		table.insert(arr,{world.underground(v),world.inSurfaceLayer(v),world.oceanLevel(v)>=v[2]})
+	end
+	return table.unpack(arr)
 end
 
-function Zquery.underWater(poz)
-	poz=poz or entity.position()
-	return world.oceanLevel(poz)>=poz[2]
+function Zquery.underWater(...)--Returns an unpacked table of true or false if the position is underWater
+	local arr={}
+	if arg==nil then
+		arg={entity.position()}
+	end
+	for _,v in ipairs(arg)do
+		table.insert(arr,world.oceanLevel(v)>=v[2])
+	end
+	return table.unpack(arr)
 end
 
-function Zquery.inLiquid(poz)
-	return world.liquidAt(poz or entity.position())
+function Zquery.inLiquid(...)--Returns an unpacked table of true or false if the position is in a liquid
+	local arr={}
+	if arg==nil then
+		arg={entity.position()}
+	end
+	for _,v in ipairs(arg)do
+		table.insert(arr,world.liquidAt(v))
+	end
+	return table.unpack(arr)
 end
 
 function Zquery.liquidAbove(poz,y)
@@ -35,5 +54,9 @@ end
 
 function Zquery.nextTo(poz,box,pad)--I think
 	box=rect.pad(box or object.boundBox(),pad or 1)
-	world.objectQuery(poz or object.position(),rect.size(rectangle))
+	return world.objectQuery(poz or object.position(),rect.size(rectangle))
+end
+
+if table.unpack==nil then--Fixes table.unpack for v5.1
+	table.unpack=unpack
 end
